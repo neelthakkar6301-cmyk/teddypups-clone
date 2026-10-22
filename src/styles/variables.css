@@ -1,0 +1,38 @@
+/*
+ * Design tokens, sampled by eye from screenshots of the reference hero/header
+ * (exact hex values could not be read from its stylesheet — tweak here only).
+ */
+:root {
+  --color-cream: #fffcf5;
+  --color-paper: #ffffff;
+  --color-tint: #fff3e1;
+  --color-ink: #2d1a0e;
+  --color-ink-soft: #6a4c38;
+  --color-rust: #a34a1a;
+  --color-rust-shadow: #5a2a10;
+  --color-accent: #b5581f;
+  --color-accent-dark: #a34a1a;
+  --color-accent-soft: #fbe6cf;
+  --color-line: #e7d5bd;
+  --color-whatsapp: #1e7b4d;
+  --color-whatsapp-dark: #176640;
+  --color-whatsapp-shadow: #0f3d27;
+  --color-error: #b3261e;
+  --color-sold: #8c7b6e;
+
+  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Figtree Variable", "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-hand: "Gaegu", "Patrick Hand", "Comic Sans MS", cursive;
+
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
+
+  --radius-sm: 10px; --radius-md: 18px; --radius-lg: 26px; --radius-pill: 999px;
+  --shadow-soft: 0 2px 10px rgba(45, 26, 14, 0.08);
+  --outline: 2.5px solid var(--color-ink);
+  --container: 1280px;
+  --container-wide: 1440px;
+  --container-narrow: 820px;
+  --nav-height: 88px;
+  --pad-x: clamp(1rem, 4vw, 3.75rem);
+}
