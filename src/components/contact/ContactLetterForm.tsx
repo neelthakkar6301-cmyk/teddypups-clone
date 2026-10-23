@@ -1,58 +1,59 @@
-import { Mail } from "lucide-react";
+import { useState, type CSSProperties } from "react";
 import { availablePuppies } from "../../data/puppies";
 import { useEnquiryForm } from "../../hooks/useEnquiryForm";
-import { useState } from "react";
+import type { Puppy } from "../../types/puppy";
 import Button from "../common/Button";
+import { PawPrint } from "../mascot/TeddyArt";
 
 const ANY = "any";
+const optionLabel = (p: Puppy) => `${p.name} (${p.name !== p.breed ? `${p.breed}, ` : ""}${p.gender.toLowerCase()})`;
+const blank = (size: string) => ({ "--size": size }) as CSSProperties;
 
-/** The "Dear TeddyPups, my name is …" letter-style form from the reference contact page. */
+/** The "Dear TeddyPups, my name is …" letter from the reference contact page. Posting opens WhatsApp. */
 export default function ContactLetterForm() {
   const [selected, setSelected] = useState(ANY);
   const puppy = availablePuppies.find((p) => p.slug === selected);
-  const label = puppy ? `${puppy.name}${puppy.name !== puppy.breed ? ` (${puppy.breed}, ${puppy.gender.toLowerCase()})` : ` (${puppy.gender.toLowerCase()})`}` : undefined;
-  const { values, errors, opened, onChange, onSubmit } = useEnquiryForm("", () => label);
+  const { values, errors, opened, onChange, onSubmit } = useEnquiryForm("", () => (puppy ? optionLabel(puppy) : undefined));
+  const problems = [errors.name, errors.phone, errors.email].filter(Boolean);
 
   return (
-    <form className="letter" onSubmit={onSubmit} noValidate>
-      <p className="letter__salutation">Dear TeddyPups,</p>
-      <p className="letter__line">
-        <label htmlFor="c-name">my name is</label>
-        <input id="c-name" name="name" placeholder="your name" value={values.name} onChange={onChange} autoComplete="name" required aria-invalid={Boolean(errors.name)} />
-        <span>, and you can reach me on</span>
-        <label className="sr-only" htmlFor="c-phone">Phone or WhatsApp</label>
-        <input id="c-phone" name="phone" type="tel" inputMode="tel" placeholder="+971 50 123 4567" value={values.phone} onChange={onChange} autoComplete="tel" required aria-invalid={Boolean(errors.phone)} />
-        <span>or by email at</span>
-        <label className="sr-only" htmlFor="c-email">Email (optional)</label>
-        <input id="c-email" name="email" type="email" placeholder="email (optional)" value={values.email} onChange={onChange} autoComplete="email" aria-invalid={Boolean(errors.email)} />.
+    <form className="letterform" onSubmit={onSubmit} noValidate>
+      <span className="letter__stamp" aria-hidden="true"><PawPrint className="letterform__paw" /></span>
+      <p className="letterform__greeting font-scrawl">Dear TeddyPups,</p>
+      <p className="letterform__line">
+        my name is{" "}
+        <span className="blank" style={blank("16ch")}><input aria-label="Your name (required)" name="name" value={values.name} onChange={onChange} autoComplete="name" required aria-invalid={Boolean(errors.name)} /></span>
+        , and you can reach me on{" "}
+        <span className="blank" style={blank("15ch")}><input aria-label="Phone or WhatsApp number with country code (required)" type="tel" inputMode="tel" placeholder="+971 50 123 4567" name="phone" value={values.phone} onChange={onChange} autoComplete="tel" required aria-invalid={Boolean(errors.phone)} /></span>
+        {" "}or by email at{" "}
+        <span className="blank" style={blank("20ch")}><input aria-label="Email (optional)" type="email" placeholder="optional" name="email" value={values.email} onChange={onChange} autoComplete="email" aria-invalid={Boolean(errors.email)} /></span>.
       </p>
-      {(errors.name || errors.phone || errors.email) && (
-        <ul className="letter__errors" role="alert">
-          {[errors.name, errors.phone, errors.email].filter(Boolean).map((e) => <li key={e}>{e}</li>)}
-        </ul>
+      <p className="letterform__line">
+        I live in{" "}
+        <span className="blank" style={blank("13ch")}><input aria-label="Your area (optional)" placeholder="e.g. Dubai Marina" name="area" value={values.area} onChange={onChange} /></span>
+        , and I'm curious about{" "}
+        <span className="blank blank--select">
+          <label className="sr-only" htmlFor="letter-puppy">Puppy you're interested in (optional)</label>
+          <select id="letter-puppy" name="puppyId" value={selected} onChange={(e) => setSelected(e.target.value)}>
+            <option value={ANY}>any puppy (not sure yet)</option>
+            {availablePuppies.map((p) => <option key={p.id} value={p.slug}>{optionLabel(p)}</option>)}
+          </select>
+        </span>.
+      </p>
+      <label className="sr-only" htmlFor="letter-message">Your message (optional)</label>
+      <textarea id="letter-message" name="message" rows={4} className="letterform__note" placeholder="Anything else you'd like to tell us…" value={values.message} onChange={onChange} />
+      {problems.length > 0 && (
+        <div className="letterform__alert" role="alert">
+          <strong>Almost there — please check:</strong>
+          <ul>{problems.map((e) => <li key={e}>{e}</li>)}</ul>
+        </div>
       )}
-      <p className="letter__line">
-        <label htmlFor="c-area">I live in</label>
-        <input id="c-area" name="area" placeholder="your area (optional)" value={values.area} onChange={onChange} />
-        <span>, and I'm curious about</span>
-        <label className="sr-only" htmlFor="c-puppy">Puppy you're interested in (optional)</label>
-        <select id="c-puppy" value={selected} onChange={(e) => setSelected(e.target.value)}>
-          <option value={ANY}>any puppy (not sure yet)</option>
-          {availablePuppies.map((p) => (
-            <option key={p.id} value={p.slug}>
-              {p.name}{p.name !== p.breed ? ` (${p.breed}, ${p.gender.toLowerCase()})` : ` (${p.gender.toLowerCase()})`}
-            </option>
-          ))}
-        </select>.
-      </p>
-      <div className="field">
-        <label htmlFor="c-message">Your message (optional)</label>
-        <textarea id="c-message" name="message" rows={4} value={values.message} onChange={onChange} />
+      <div className="letterform__sign">
+        <p className="font-scrawl">with love, a future puppy parent</p>
+        <Button type="submit">Post my letter</Button>
       </div>
-      <p className="letter__sign">with love, a future puppy parent</p>
-      <Button type="submit" variant="primary"><Mail size={18} aria-hidden="true" /> Post my letter</Button>
       <p className="form__note" role="status">
-        {opened ? "WhatsApp should have opened with your letter ready. Nothing is sent until you press send there." : "Posting opens WhatsApp with your letter pre-filled — you finish sending it there."}
+        {opened ? "WhatsApp should have opened with your letter ready. Nothing is sent until you press send there." : "Posting opens WhatsApp with your letter filled in — you finish sending it there."}
       </p>
     </form>
   );

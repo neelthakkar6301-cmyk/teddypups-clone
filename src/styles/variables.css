@@ -1,38 +1,72 @@
 /*
- * Design tokens, sampled by eye from screenshots of the reference hero/header
- * (exact hex values could not be read from its stylesheet — tweak here only).
+ * Design tokens. Palette, type scale and gutters match the reference stylesheet
+ * (toffee / honey / cocoa / milk). Change values here only.
  */
 :root {
-  --color-cream: #fffcf5;
+  /* Brand palette */
+  --color-toffee: #c2622b;
+  --color-toffee-deep: #a24a1a;
+  --color-toffee-ink: #8e3f15;
+  --color-honey: #f2be6b;
+  --color-honey-soft: #fbe3b4;
+  --color-cocoa: #2a170e;
+  --color-cocoa-soft: #5a3a28;
+  --color-milk: #fffdf8;
+  --color-sky: #bfddf5;
+  --color-sky-deep: #2f6e9e;
+  --color-blush: #f9cdbf;
+  --color-whatsapp: #1f7a4d;
+
+  /* Semantic aliases used across components */
+  --color-cream: var(--color-milk);
   --color-paper: #ffffff;
-  --color-tint: #fff3e1;
-  --color-ink: #2d1a0e;
-  --color-ink-soft: #6a4c38;
-  --color-rust: #a34a1a;
-  --color-rust-shadow: #5a2a10;
-  --color-accent: #b5581f;
-  --color-accent-dark: #a34a1a;
-  --color-accent-soft: #fbe6cf;
-  --color-line: #e7d5bd;
-  --color-whatsapp: #1e7b4d;
-  --color-whatsapp-dark: #176640;
-  --color-whatsapp-shadow: #0f3d27;
+  --color-tint: #fff1d8;
+  --color-ink: var(--color-cocoa);
+  --color-ink-soft: var(--color-cocoa-soft);
+  --color-rust: var(--color-toffee-deep);
+  --color-accent: var(--color-toffee);
+  --color-accent-dark: var(--color-toffee-deep);
+  --color-accent-soft: var(--color-honey-soft);
+  --color-line: #ead6b8;
   --color-error: #b3261e;
   --color-sold: #8c7b6e;
 
-  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body: "Figtree Variable", "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-hand: "Gaegu", "Patrick Hand", "Comic Sans MS", cursive;
+  /* Scene ink (switched to milk inside dark scenes) */
+  --ink: var(--color-cocoa);
+  --ink-soft: var(--color-cocoa-soft);
 
+  /* Type */
+  --font-display: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Figtree Variable", "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hand: "Shantell Sans Variable", "Shantell Sans", ui-rounded, "Comic Sans MS", cursive;
+  --text-lede: clamp(1.125rem, 1.4vw, 1.375rem);
+  --text-big: clamp(2rem, 4.2vw, 4rem);
+  --text-huge: clamp(2.6rem, 6.4vw, 6.25rem);
+
+  /* Spacing */
   --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
   --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
+  --gutter: clamp(1rem, 4vw, 3.5rem);
 
-  --radius-sm: 10px; --radius-md: 18px; --radius-lg: 26px; --radius-pill: 999px;
-  --shadow-soft: 0 2px 10px rgba(45, 26, 14, 0.08);
-  --outline: 2.5px solid var(--color-ink);
-  --container: 1280px;
-  --container-wide: 1440px;
-  --container-narrow: 820px;
-  --nav-height: 88px;
-  --pad-x: clamp(1rem, 4vw, 3.75rem);
+  /* Shape */
+  --radius-sm: 0.75rem; --radius-md: 1rem; --radius-lg: 1.5rem; --radius-pill: 999px;
+  --shadow-sticker: 2px 3px 0 rgba(42, 23, 14, 0.2);
+  --shadow-soft: 0 2px 10px rgba(42, 23, 14, 0.08);
+
+  /* Layout */
+  --container: 80rem;
+  --container-wide: 110rem;
+  --container-narrow: 56rem;
+  --header-h: 4.75rem;
+  --nav-height: var(--header-h);
+  --bar-h: 0px;
+
+  /* Motion */
+  --ease-pounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+@media (max-width: 767px) {
+  :root { --header-h: 4rem; --bar-h: calc(4rem + env(safe-area-inset-bottom)); }
 }

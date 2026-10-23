@@ -6,6 +6,8 @@ import WhatsAppButton from "./components/layout/WhatsAppButton";
 import ScrollToTop from "./components/common/ScrollToTop";
 import Loading from "./components/common/Loading";
 import CursorTrail from "./components/common/CursorTrail";
+import Curtain from "./components/layout/Curtain";
+import { useScrollPulse } from "./hooks/useScrollPulse";
 
 const Home = lazy(() => import("./pages/Home"));
 const Puppies = lazy(() => import("./pages/Puppies"));
@@ -18,9 +20,11 @@ const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function SiteLayout() {
+  useScrollPulse();
   return (
     <>
       <CursorTrail />
+      <Curtain />
       <ScrollToTop />
       <Navbar />
       <main id="main">

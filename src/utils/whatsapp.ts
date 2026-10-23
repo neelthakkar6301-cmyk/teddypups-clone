@@ -18,6 +18,11 @@ export function puppyWhatsappUrl(puppy: Puppy, pageUrl: string): string {
   return whatsappUrl(`Hi TeddyPups! I'm interested in ${who}: ${pageUrl}`);
 }
 
+/** For a puppy that has gone home: ask for one just like them (reference wording). */
+export function likeThisWhatsappUrl(puppy: Puppy, pageUrl: string): string {
+  return whatsappUrl(`Hi TeddyPups! I loved ${puppy.name} (${pageUrl}). Do you have a puppy like them?`);
+}
+
 export function buildEnquiryMessage(v: EnquiryValues, puppyLabel?: string): string {
   const lines = ["Hi TeddyPups!"];
   if (puppyLabel) lines.push(`Puppy: ${puppyLabel}`);
