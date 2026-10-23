@@ -1,32 +1,57 @@
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { featuredTestimonial, homeFamilyPhotos } from "../../data/testimonials";
-import { mediaUrl } from "../../utils/images";
-import SectionHeading from "../common/SectionHeading";
-import PageContainer from "../layout/PageContainer";
+import { useRef, useState, type CSSProperties } from "react";
+import { familyPhotos, featuredTestimonial, homeFamilyPhotos } from "../../data/testimonials";
+import { useReveal } from "../../hooks/useReveal";
+import Button from "../common/Button";
+import PhotoViewer from "../common/PhotoViewer";
+import Polaroid from "../common/Polaroid";
+import PupStop from "../mascot/PupStop";
 
+/** Order the prints drop onto the wall (ms), so they don't fall in reading order. */
+const DROP_DELAYS = [330, 0, 550, 110, 660, 220, 770, 440];
+const [author, ...place] = featuredTestimonial.author.split(", ");
+
+/** "Happy families & puppies": dusk falls on a wooden facade hung with polaroids. */
 export default function HappyFamilies() {
+  const wallRef = useRef<HTMLUListElement>(null);
+  const [viewing, setViewing] = useState<number | null>(null);
+  useReveal(wallRef, "li");
+
   return (
-    <section className="section" aria-labelledby="families-title">
-      <PageContainer>
-        <SectionHeading id="families-title" title="Happy families & puppies" align="center"
-          subtitle="We are truly honored to see our puppies become cherished members of loving families. These heartwarming moments have been shared by our valued clients who welcomed a Teddy Pup into their homes and hearts." />
-        <figure className="quote">
-          <blockquote><p>“{featuredTestimonial.quote}”</p></blockquote>
-          <figcaption>{featuredTestimonial.author}</figcaption>
+    <section className="scene dusk" data-tone="dark" aria-labelledby="dusk-title" style={{ "--sky-top": "#a65a30", "--sky-bottom": "#4d2b19" } as CSSProperties}>
+      <div className="dusk__sky gutter">
+        <div>
+          <h2 id="dusk-title" className="text-huge">Happy families &amp; puppies</h2>
+          <p className="text-lede ink-soft dusk__lede">We are truly honored to see our puppies become cherished members of loving families. These heartwarming moments have been shared by our valued clients who welcomed a Teddy Pup into their homes and hearts.</p>
+        </div>
+        <figure className="dusk__note">
+          <blockquote className="font-plush-text">“{featuredTestimonial.quote}”</blockquote>
+          <figcaption className="font-scrawl">{author}{place.length > 0 && `, ${place.join(", ")}`}</figcaption>
         </figure>
-        <ul className="polaroid-wall">
-          {homeFamilyPhotos.map((f) => (
-            <li key={f.path}>
-              <figure>
-                <img src={mediaUrl(f.path, 640)} alt="A happy TeddyPups family with their new puppy" loading="lazy" width="320" height="320" />
-                <figcaption>{f.caption}</figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
-        <p className="center"><Link className="link-arrow" to="/happy-families">See every happy family <ArrowRight size={16} aria-hidden="true" /></Link></p>
-      </PageContainer>
+      </div>
+
+      <div className="photowall">
+        <div className="photowall__wall">
+          <ul ref={wallRef} className="photowall__prints" aria-label="Photos from TeddyPups families">
+            {homeFamilyPhotos.map((photo, i) => {
+              const at = familyPhotos.indexOf(photo);
+              return (
+                <li key={photo.path} style={{ "--d": `${DROP_DELAYS[i % DROP_DELAYS.length]}ms` } as CSSProperties}>
+                  <Polaroid photo={photo} look={i} onOpen={() => setViewing(at)}
+                    label={`Open photo ${at + 1} of ${familyPhotos.length}: ${photo.caption ?? "a TeddyPups family"}`} />
+                </li>
+              );
+            })}
+          </ul>
+          <div className="facade__ground">
+            <span className="facade__door" aria-hidden="true" />
+            <span className="lamp" aria-hidden="true"><span className="lamp__light" /></span>
+            <Button to="/happy-families" className="facade__cta">See every happy family</Button>
+            <PupStop className="dusk__teddy" facing="left" />
+          </div>
+        </div>
+        <div className="pavement" aria-hidden="true" />
+      </div>
+      <PhotoViewer photos={familyPhotos} index={viewing} onChange={setViewing} />
     </section>
   );
 }

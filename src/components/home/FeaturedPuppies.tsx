@@ -1,99 +1,105 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { availablePuppies } from "../../data/puppies";
-import SectionHeading from "../common/SectionHeading";
-import PuppyGrid from "../puppies/PuppyGrid";
-import PageContainer from "../layout/PageContainer";
+import Button from "../common/Button";
+import PupStop from "../mascot/PupStop";
+import PuppyDoor from "../puppies/PuppyDoor";
 
+const PIN_QUERY = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
+
+/**
+ * "Meet the pups": a hallway of doors. On wider screens the section pins and the
+ * hallway slides past Teddy as you scroll; each door opens once Teddy reaches it.
+ * On phones it is a grid and doors open as they scroll into view.
+ */
 export default function FeaturedPuppies() {
   const sceneRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLUListElement>(null);
+  const trackRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
     const scene = sceneRef.current;
     const track = trackRef.current;
     if (!scene || !track) return;
-
-    let maxTravel = 0;
-    let range = 1;
+    const pin = window.matchMedia(PIN_QUERY);
+    const doors = () => [...track.querySelectorAll<HTMLElement>(".door")];
+    let travel = 0;
     let frame = 0;
-    let previousY = window.scrollY;
-    const walker = document.querySelector<HTMLElement>(".home-walker");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const mobile = window.matchMedia("(max-width: 768px)");
-
-    const measure = () => {
-      const compact = mobile.matches || reducedMotion.matches;
-      maxTravel = compact ? 0 : Math.max(0, track.scrollWidth - window.innerWidth + 48);
-      range = Math.max(1, maxTravel);
-      scene.style.height = compact ? "auto" : `${window.innerHeight + maxTravel}px`;
-      update();
-    };
+    let observer: IntersectionObserver | null = null;
 
     const update = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        const start = scene.getBoundingClientRect().top + window.scrollY;
-        const progress = maxTravel === 0 ? 0 : Math.max(0, Math.min(1, (window.scrollY - start) / range));
-        scene.style.setProperty("--track-offset", `${maxTravel * progress}px`);
-        const scrollingDown = window.scrollY >= previousY;
-        const walkerRect = walker?.getBoundingClientRect();
-        const walkerCenter = walkerRect ? walkerRect.left + walkerRect.width / 2 : Number.NaN;
-        scene.querySelectorAll<HTMLElement>(".puppy-card--door").forEach((door) => {
-          const doorRect = door.getBoundingClientRect();
-          const distance = Math.abs(doorRect.left + doorRect.width / 2 - walkerCenter);
-          const walkerVisible = walker && Number(walker.style.getPropertyValue("--walker-opacity")) > 0;
-          const currentlyOpen = Number(door.style.getPropertyValue("--door-open")) || 0;
-          const walkerHasReturnedPastDoor = walkerVisible && walkerCenter < doorRect.left + doorRect.width / 2 - 190;
-          const open = mobile.matches || reducedMotion.matches
-            ? 1
-            : scrollingDown
-              ? walkerVisible && distance < 190 ? 1 : currentlyOpen
-              : currentlyOpen && !walkerHasReturnedPastDoor ? 1 : 0;
-          door.style.setProperty("--door-open", `${open}`);
-        });
-        previousY = window.scrollY;
-        frame = 0;
+      frame = 0;
+      if (!pin.matches) return;
+      const top = scene.getBoundingClientRect().top;
+      const progress = travel === 0 ? 0 : Math.min(1, Math.max(0, -top / travel));
+      scene.style.setProperty("--track-x", `${-travel * progress}px`);
+      scene.style.setProperty("--floor-x", `${-travel * progress * 0.6}px`);
+      const teddy = scene.querySelector<HTMLElement>(".meet__teddy")?.getBoundingClientRect();
+      const reach = teddy ? teddy.left + teddy.width * 0.7 : window.innerWidth * 0.3;
+      doors().forEach((d) => {
+        const r = d.getBoundingClientRect();
+        d.dataset.open = String(r.left + r.width * 0.35 < reach);
       });
     };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
 
-    const observer = new ResizeObserver(measure);
-    observer.observe(track);
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", update, { passive: true });
-    reducedMotion.addEventListener("change", measure);
-    mobile.addEventListener("change", measure);
-    measure();
+    const setup = () => {
+      observer?.disconnect();
+      observer = null;
+      if (pin.matches) {
+        scene.dataset.pinned = "";
+        travel = Math.max(0, track.scrollWidth - window.innerWidth);
+        scene.style.height = `${window.innerHeight + travel}px`;
+        schedule();
+      } else {
+        delete scene.dataset.pinned;
+        scene.style.removeProperty("height");
+        scene.style.removeProperty("--track-x");
+        observer = new IntersectionObserver((entries) => entries.forEach((e) => {
+          if (e.isIntersecting) (e.target as HTMLElement).dataset.open = "true";
+        }), { rootMargin: "0px 0px -35% 0px", threshold: 0.5 });
+        doors().forEach((d) => observer?.observe(d));
+      }
+    };
+
+    const resize = new ResizeObserver(setup);
+    resize.observe(track);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", setup);
+    pin.addEventListener("change", setup);
+    setup();
 
     return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", update);
-      reducedMotion.removeEventListener("change", measure);
-      mobile.removeEventListener("change", measure);
+      resize.disconnect();
+      observer?.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", setup);
+      pin.removeEventListener("change", setup);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
   return (
-    <section className="featured-puppies-scene" aria-labelledby="meet-title" ref={sceneRef}>
-      <div className="featured-puppies__sticky">
-        <PageContainer className="featured-puppies__content">
-          <div className="section__head-row">
-            <SectionHeading id="meet-title" title="Meet the pups" subtitle="Real puppies, real photos, looking for their families right now." />
-            <Link className="btn btn--primary featured-puppies__all" to="/puppies">See all available puppies</Link>
+    <section ref={sceneRef} className="scene meet" aria-labelledby="meet-title" style={{ "--sky-top": "#fff1d8", "--sky-bottom": "#fbe3b4" } as CSSProperties}>
+      <div className="meet__stage">
+        <header className="meet__head gutter">
+          <div>
+            <h2 id="meet-title" className="text-huge">Meet the pups</h2>
+            <p className="text-lede ink-soft meet__lede">Real puppies, real photos, looking for their families right now.</p>
           </div>
-          <div className="featured-puppies__viewport">
-            <PuppyGrid
-              listRef={trackRef}
-              className="puppy-grid--track"
-              puppies={availablePuppies}
-              doorCards
-              trailing={<Link to="/puppies" className="puppy-card puppy-card--more"><span>Meet them all</span><ArrowRight aria-hidden="true" /></Link>}
-            />
-          </div>
-        </PageContainer>
+          <Button to="/puppies">See all available puppies</Button>
+        </header>
+        <div className="meet__hall">
+          <ol ref={trackRef} className="meet__track" aria-label="Puppies looking for a family">
+            {availablePuppies.map((p, i) => <PuppyDoor key={p.id} puppy={p} index={i} />)}
+            <li className="door door--all">
+              <Link className="door__link" to="/puppies">
+                <span className="door__frame door__frame--all"><span className="door__all font-plush">Meet them all</span></span>
+              </Link>
+            </li>
+          </ol>
+          <div className="meet__floor" aria-hidden="true" />
+          <PupStop className="meet__teddy" />
+        </div>
       </div>
     </section>
   );

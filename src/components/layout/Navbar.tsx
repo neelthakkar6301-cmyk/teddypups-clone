@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { Menu, Phone, X } from "lucide-react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { navItems } from "../../data/navigation";
 import { LOGO_URL } from "../../utils/images";
 import { PHONE_DISPLAY, PHONE_TEL, defaultWhatsappUrl } from "../../utils/whatsapp";
-import PageContainer from "./PageContainer";
+import { PawPrint } from "../mascot/TeddyArt";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+  const home = pathname === "/";
   const close = () => setOpen(false);
+  // ScrollToTop only fires on a route change, so a link to the current page scrolls back up here.
+  const onNavigate = (to: string) => {
+    close();
+    if (to === pathname) window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -18,11 +24,11 @@ export default function Navbar() {
     const onScroll = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
-        const currentY = window.scrollY;
-        setScrolled(currentY > 4);
-        if (currentY < 80) setHidden(false);
-        else if (Math.abs(currentY - previousY) > 4) setHidden(currentY > previousY);
-        previousY = currentY;
+        const y = window.scrollY;
+        setScrolled(y > 8);
+        if (y < 120) setHidden(false);
+        else if (Math.abs(y - previousY) > 6) setHidden(y > previousY);
+        previousY = y;
         frame = 0;
       });
     };
@@ -35,7 +41,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
     return () => {
@@ -49,46 +55,55 @@ export default function Navbar() {
   return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
-      <header className={`nav${hidden ? " nav--hidden" : ""}${scrolled ? " nav--scrolled" : ""}`}>
-        <PageContainer className="nav__inner container--wide">
-          <Link to="/" className="nav__brand" aria-label="TeddyPups home" onClick={close}>
-            <img src={LOGO_URL} alt="" width="64" height="64" />
-            <span>TeddyPups</span>
+      <header className="nav" data-hidden={hidden && !open} data-scrolled={scrolled} data-home={home || undefined}>
+        <div className="nav__bar gutter">
+          <Link to="/" className="nav__brand" aria-label="TeddyPups U.A.E. — home" onClick={() => onNavigate("/")}>
+            <img className="nav__logo" src={LOGO_URL} alt="" width="48" height="48" />
+            <span className="nav__name font-plush">TeddyPups</span>
           </Link>
           <nav className="nav__links" aria-label="Main">
-            {navItems.map((n) => (
-              <NavLink key={n.to} to={n.to} end={n.end} className={linkClass}>{n.label}</NavLink>
-            ))}
+            <ul>
+              {navItems.map((n) => (
+                <li key={n.to}>
+                  <NavLink to={n.to} end={n.end} className={linkClass} onClick={() => onNavigate(n.to)}>
+                    <span>{n.label}</span>
+                    <PawPrint className="nav__paw" />
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
           </nav>
-          <a className="btn btn--whatsapp nav__cta" href={defaultWhatsappUrl} target="_blank" rel="noopener noreferrer">
-            WhatsApp us
-          </a>
-          <button className="nav__menu" type="button" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(true)}>
-            <Menu size={20} aria-hidden="true" /> Menu
-          </button>
-        </PageContainer>
-      </header>
-
-      <div id="mobile-menu" className={`drawer${open ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-label="Menu" aria-hidden={!open}>
-        <div className="drawer__backdrop" onClick={close} />
-        <div className="drawer__panel">
-          <div className="drawer__head">
-            <span className="drawer__title">where to, friend?</span>
-            <button type="button" className="drawer__close" onClick={close} aria-label="Close menu" tabIndex={open ? 0 : -1}>
-              <X size={20} aria-hidden="true" /> Close
+          <div className="nav__end">
+            <a className="btn btn--whatsapp nav__wa" href={defaultWhatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+            <button className="nav__menu" type="button" aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(true)}>
+              <PawPrint className="nav__menu-paw" /> Menu
             </button>
           </div>
-          <nav aria-label="Mobile">
-            {navItems.map((n) => (
-              <NavLink key={n.to} to={n.to} end={n.end} className={(s) => `drawer__link${s.isActive ? " is-active" : ""}`} onClick={close} tabIndex={open ? 0 : -1}>
-                {n.label}
-              </NavLink>
-            ))}
+        </div>
+        <span className="nav__hem" aria-hidden="true" />
+      </header>
+
+      <div id="site-menu" className="menu" data-open={open} role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden={!open}>
+        <div className="menu__inner gutter">
+          <div className="menu__head">
+            <span className="font-scrawl menu__title">where to, friend?</span>
+            <button type="button" className="menu__close" onClick={close} tabIndex={open ? 0 : -1}>Close</button>
+          </div>
+          <nav aria-label="Mobile" className="menu__nav">
+            <ul>
+              {navItems.map((n) => (
+                <li key={n.to}>
+                  <NavLink to={n.to} end={n.end} className={(s) => `menu__link font-plush${s.isActive ? " is-active" : ""}`} onClick={() => onNavigate(n.to)} tabIndex={open ? 0 : -1}>
+                    {n.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
           </nav>
-          <a className="btn btn--whatsapp drawer__cta" href={defaultWhatsappUrl} target="_blank" rel="noopener noreferrer" tabIndex={open ? 0 : -1}>
-            WhatsApp us
-          </a>
-          <a className="drawer__phone" href={PHONE_TEL} tabIndex={open ? 0 : -1}><Phone size={16} aria-hidden="true" /> {PHONE_DISPLAY}</a>
+          <div className="menu__foot">
+            <a className="btn btn--whatsapp menu__wa" href={defaultWhatsappUrl} target="_blank" rel="noopener noreferrer" tabIndex={open ? 0 : -1}>WhatsApp us</a>
+            <a className="menu__phone" href={PHONE_TEL} tabIndex={open ? 0 : -1}>{PHONE_DISPLAY}</a>
+          </div>
         </div>
       </div>
     </>
