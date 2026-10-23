@@ -59,6 +59,8 @@ export default function PupActor() {
     let lastTime = 0;
     let lastScrollY = window.scrollY;
     let scrolledAt = 0;
+    /** 1 while scrolling down, -1 while scrolling up. */
+    let scrollDir = 1;
     let travelled = 0;
     let side = 1;
     let facing = 1;
@@ -154,11 +156,13 @@ export default function PupActor() {
       const speed = Math.hypot(vx, (cur.y - prev.y) / dt);
 
       // Face where he is going; when resting, face the way the stop asks.
-      if (Math.abs(vx) > WALK_SPEED) facing = vx > 0 ? 1 : -1;
-      else if (goal.rest) facing = goal.rest;
-
       const scrolling = time - scrolledAt < 220;
       const treadmill = goal.restingAt?.act === "treadmill" && scrolling;
+
+      // In the hallway he walks on the spot: forward (right) when scrolling down, back (left) when scrolling up.
+      if (treadmill) facing = scrollDir;
+      else if (Math.abs(vx) > WALK_SPEED) facing = vx > 0 ? 1 : -1;
+      else if (goal.rest && goal.restingAt?.act !== "treadmill") facing = goal.rest;
       const walking = speed > WALK_SPEED || treadmill;
 
       // Arrived at a still stop: hand over to its own drawing (Teddy settles into the basket).
@@ -196,7 +200,10 @@ export default function PupActor() {
 
     const wake = () => { if (!frame) frame = window.requestAnimationFrame(tick); };
     const onScroll = () => {
-      if (window.scrollY !== lastScrollY) scrolledAt = performance.now();
+      if (window.scrollY !== lastScrollY) {
+        scrolledAt = performance.now();
+        scrollDir = window.scrollY > lastScrollY ? 1 : -1;
+      }
       lastScrollY = window.scrollY;
       wake();
     };
