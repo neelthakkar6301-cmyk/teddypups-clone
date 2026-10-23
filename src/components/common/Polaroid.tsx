@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import type { FamilyPhoto } from "../../data/testimonials";
+import { imageSizes } from "../../data/imageSizes";
 import { mediaUrl } from "../../utils/images";
+import { PawPrint } from "../mascot/TeddyArt";
 
 type TapeSpot = "center" | "left" | "right" | "corners";
 
@@ -22,11 +24,14 @@ interface Props {
   label: string;
   onOpen: () => void;
   width?: number;
+  /** Teddy pats the print with a paw as it lands on the wall. */
+  paw?: boolean;
 }
 
 /** A taped polaroid print that opens the photo viewer. */
-export default function Polaroid({ photo, look, label, onOpen, width = 640 }: Props) {
+export default function Polaroid({ photo, look, label, onOpen, width = 640, paw = false }: Props) {
   const { tilt, tape, spot } = LOOKS[look % LOOKS.length];
+  const [w, h] = imageSizes[photo.path.split("/").slice(0, 2).join("/")] ?? [320, 368];
   return (
     <button type="button" className="print" aria-label={label} onClick={onOpen}>
       <span className="polaroid" style={{ "--tilt": tilt, "--tape": tape } as CSSProperties}>
@@ -34,10 +39,11 @@ export default function Polaroid({ photo, look, label, onOpen, width = 640 }: Pr
           ? <><span className="tape tape--tl" /><span className="tape tape--tr" /></>
           : <span className={`tape tape--${spot}`} />}
         <span className="polaroid__photo">
-          <img src={mediaUrl(photo.path, width)} alt="A happy TeddyPups family with their new puppy" loading="lazy" width="320" height="368" />
+          <img src={mediaUrl(photo.path, width)} alt="A happy TeddyPups family with their new puppy" loading="lazy" width={w} height={h} />
         </span>
-        {photo.caption !== undefined && <span className="polaroid__caption font-scrawl">{photo.caption}</span>}
+        <span className="polaroid__caption font-scrawl">{photo.caption}</span>
       </span>
+      {paw && <PawPrint className="print__paw" />}
     </button>
   );
 }

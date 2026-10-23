@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Puppy } from "../../types/puppy";
 import { doorMeta } from "../../utils/formatters";
-import { mediaUrl } from "../../utils/images";
+import { focusOf, mediaUrl } from "../../utils/images";
 import { PawPrint } from "../mascot/TeddyArt";
 
 /** Door paint, cycled along a row of doors. */
@@ -21,7 +21,7 @@ export default function PuppyDoor({ puppy, index, open }: Props) {
         </span>
         <span className="door__frame">
           <span className="door__room">
-            <img src={mediaUrl(puppy.images[0], 640)} alt={`${puppy.name === puppy.breed ? "" : `${puppy.name}, `}${puppy.gender.toLowerCase()} ${puppy.breed} puppy`} loading="lazy" width="320" height="416" />
+            <img src={mediaUrl(puppy.images[0], 640)} alt={`${puppy.name === puppy.breed ? "" : `${puppy.name}, `}${puppy.gender.toLowerCase()} ${puppy.breed} puppy`} loading="lazy" width="320" height="416" style={{ objectPosition: focusOf(puppy.images[0]) }} />
           </span>
           <span className="door__way" aria-hidden="true">
             <span className="door__leaf">

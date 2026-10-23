@@ -2,7 +2,7 @@
 html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; text-rendering: optimizeLegibility; scroll-padding-top: calc(var(--header-h) + 1rem); overflow-x: clip; }
 body {
   margin: 0; min-height: 100vh; background: var(--color-milk); color: var(--color-cocoa);
-  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; font-weight: 450;
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; font-weight: 400;
   overflow-x: clip; -webkit-font-smoothing: antialiased;
 }
 
@@ -61,8 +61,8 @@ main { position: relative; padding-top: var(--header-h); outline: none; }
 .scene[data-tone="dark"] .btn--secondary:hover { background: var(--color-milk); color: var(--color-cocoa); }
 
 /* Handwritten note with a squiggle underline (hero, page heads) */
-.eyebrow { position: relative; display: inline-block; font-family: var(--font-hand); font-variation-settings: "INFM" 60, "BNCE" 30; font-weight: 500; font-size: clamp(1.1rem, 1.7vw, 1.5rem); color: var(--color-toffee-ink); line-height: 1.2; padding-bottom: 0.45rem; }
-.eyebrow::after { content: ""; position: absolute; left: 0; right: 0; bottom: -0.25rem; height: 0.75rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 24' preserveAspectRatio='none'%3E%3Cpath d='M3 15 C40 6 70 20 110 12 S180 6 217 13' fill='none' stroke='%23c2622b' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.eyebrow { position: relative; display: inline-block; font-family: var(--font-hand); font-variation-settings: "INFM" 60, "BNCE" 30; font-weight: 500; font-size: clamp(1.1rem, 1.7vw, 1.5rem); color: var(--color-toffee-ink); line-height: 1.6; }
+.eyebrow::after { content: ""; position: absolute; left: 0; right: 0; bottom: -0.5rem; height: 0.75rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 24' preserveAspectRatio='none'%3E%3Cpath d='M3 15 C40 6 70 20 110 12 S180 6 217 13' fill='none' stroke='%23c2622b' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

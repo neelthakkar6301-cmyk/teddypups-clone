@@ -5,12 +5,14 @@ import Button from "../common/Button";
 import PupStop from "../mascot/PupStop";
 import PuppyDoor from "../puppies/PuppyDoor";
 
-const PIN_QUERY = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
+const PIN_QUERY = "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
+/** Scroll distance per pixel of hallway travel (the reference pins for 80% of the overflow). */
+const SCROLL_PER_PX = 0.8;
 
 /**
- * "Meet the pups": a hallway of doors. On wider screens the section pins and the
+ * "Meet the pups": a hallway of doors. On laptops and up the section pins and the
  * hallway slides past Teddy as you scroll; each door opens once Teddy reaches it.
- * On phones it is a grid and doors open as they scroll into view.
+ * Below 1024px it is a grid and doors open as they scroll into view.
  */
 export default function FeaturedPuppies() {
   const sceneRef = useRef<HTMLElement>(null);
@@ -30,7 +32,7 @@ export default function FeaturedPuppies() {
       frame = 0;
       if (!pin.matches) return;
       const top = scene.getBoundingClientRect().top;
-      const progress = travel === 0 ? 0 : Math.min(1, Math.max(0, -top / travel));
+      const progress = travel === 0 ? 0 : Math.min(1, Math.max(0, -top / (travel * SCROLL_PER_PX)));
       scene.style.setProperty("--track-x", `${-travel * progress}px`);
       scene.style.setProperty("--floor-x", `${-travel * progress * 0.6}px`);
       const teddy = scene.querySelector<HTMLElement>(".meet__teddy")?.getBoundingClientRect();
@@ -48,7 +50,7 @@ export default function FeaturedPuppies() {
       if (pin.matches) {
         scene.dataset.pinned = "";
         travel = Math.max(0, track.scrollWidth - window.innerWidth);
-        scene.style.height = `${window.innerHeight + travel}px`;
+        scene.style.height = `${window.innerHeight + Math.round(travel * SCROLL_PER_PX)}px`;
         schedule();
       } else {
         delete scene.dataset.pinned;
@@ -98,7 +100,7 @@ export default function FeaturedPuppies() {
             </li>
           </ol>
           <div className="meet__floor" aria-hidden="true" />
-          <PupStop className="meet__teddy" />
+          <PupStop className="meet__teddy" act="treadmill" />
         </div>
       </div>
     </section>

@@ -31,9 +31,11 @@ export default function Footer() {
         </div>
         <div className="footer__basket" aria-hidden="true">
           <div className="basket">
-            <Basket part="back" />
-            <PupStop still pose="front" className="basket__pup" />
-            <Basket part="front" />
+            <div className="basket__art">
+              <Basket part="back" />
+              <PupStop still pose="front" className="basket__pup" />
+              <Basket part="front" />
+            </div>
           </div>
         </div>
         <nav className="footer__explore" aria-label="Footer">

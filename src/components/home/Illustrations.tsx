@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 
 /** Line drawing of the Downtown Dubai skyline (Burj Khalifa in the middle). */
 export function DubaiSkyline({ className }: { className?: string }) {
@@ -14,25 +14,79 @@ export function DubaiSkyline({ className }: { className?: string }) {
 
 interface FlightProps { className?: string; photo: string; label: string }
 
-/** Dotted flight route from Korea up to a plane carrying a puppy in its porthole, landing in Dubai. */
+/**
+ * Dotted flight route from Korea to Dubai. As the route scrolls through the screen the plane, with a
+ * puppy in its porthole, flies along it, tilting with the curve and leaving the dotted trail behind it.
+ */
 export function FlightPath({ className, photo, label }: FlightProps) {
   const clip = useId();
+  const trail = useId();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const routeRef = useRef<SVGPathElement>(null);
+  const flownRef = useRef<SVGPathElement>(null);
+  const planeRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    const route = routeRef.current;
+    const flown = flownRef.current;
+    const plane = planeRef.current;
+    if (!svg || !route || !flown || !plane) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const length = route.getTotalLength();
+    flown.style.strokeDasharray = `${length}`;
+    let frame = 0;
+
+    const place = () => {
+      frame = 0;
+      const r = svg.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // Takes off as the route rises into the lower screen, lands by the time it reaches the upper third.
+      const p = reduced.matches ? 1 : Math.min(1, Math.max(0, (vh * 0.92 - r.top) / (vh * 0.6)));
+      const at = route.getPointAtLength(length * p);
+      const ahead = route.getPointAtLength(Math.min(length, length * p + 1));
+      const behind = route.getPointAtLength(Math.max(0, length * p - 1));
+      const angle = (Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180) / Math.PI;
+      plane.setAttribute("transform", `translate(${at.x.toFixed(1)} ${at.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+      flown.style.strokeDashoffset = `${length * (1 - p)}`;
+    };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(place); };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    place();
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  const d = "M60 250 C150 120 380 40 600 168";
   return (
     <div className={className}>
-      <svg viewBox="0 0 660 300" role="img" aria-label={label}>
-        <path className="flight__route" d="M190 238 C240 120 360 70 500 82" />
-        <circle className="flight__dot" cx="190" cy="238" r="8" />
-        <text className="flight__label" x="168" y="276">Korea</text>
-        <text className="flight__label" x="602" y="222">Dubai</text>
-        <g className="flight__plane" transform="translate(560 100) rotate(26)">
-          <path className="flight__wing flight__wing--far" d="M-12 -24 L18 -86 L44 -80 L24 -24Z" />
-          <path className="flight__wing" d="M-84 -4 L-106 -44 L-82 -42 L-60 -14Z" />
-          <path className="flight__body" d="M-92 2 C-92 -20 -42 -30 18 -30 C70 -30 98 -14 98 2 C98 16 72 28 18 28 C-42 28 -92 22 -92 2Z" />
-          <path className="flight__wing" d="M-18 22 L16 84 L44 78 L26 22Z" />
-          <defs><clipPath id={clip}><circle cx="38" cy="-1" r="15" /></clipPath></defs>
-          <image href={photo} x="23" y="-16" width="30" height="30" clipPath={`url(#${clip})`} preserveAspectRatio="xMidYMid slice" />
-          <circle className="flight__porthole" cx="38" cy="-1" r="15" />
-          <path className="flight__line" d="M72 -18 Q86 -10 88 2" />
+      <svg ref={svgRef} viewBox="0 0 660 300" role="img" aria-label={label}>
+        <defs>
+          <mask id={trail} maskUnits="userSpaceOnUse" x="0" y="0" width="660" height="300">
+            <path ref={flownRef} d={d} fill="none" stroke="#fff" strokeWidth="14" />
+          </mask>
+        </defs>
+        <path ref={routeRef} className="flight__route flight__route--ghost" d={d} />
+        <path className="flight__route" d={d} mask={`url(#${trail})`} />
+        <circle className="flight__dot" cx="60" cy="250" r="8" />
+        <circle className="flight__dot" cx="600" cy="168" r="8" />
+        <text className="flight__label" x="60" y="288" textAnchor="middle">Korea</text>
+        <text className="flight__label" x="600" y="206" textAnchor="middle">Dubai</text>
+        <g ref={planeRef}>
+          <g className="flight__plane" transform="scale(0.85)">
+            <path className="flight__wing flight__wing--far" d="M-12 -24 L18 -86 L44 -80 L24 -24Z" />
+            <path className="flight__wing" d="M-84 -4 L-106 -44 L-82 -42 L-60 -14Z" />
+            <path className="flight__body" d="M-92 2 C-92 -20 -42 -30 18 -30 C70 -30 98 -14 98 2 C98 16 72 28 18 28 C-42 28 -92 22 -92 2Z" />
+            <path className="flight__wing" d="M-18 22 L16 84 L44 78 L26 22Z" />
+            <defs><clipPath id={clip}><circle cx="38" cy="-1" r="15" /></clipPath></defs>
+            <image href={photo} x="23" y="-16" width="30" height="30" clipPath={`url(#${clip})`} preserveAspectRatio="xMidYMid slice" />
+            <circle className="flight__porthole" cx="38" cy="-1" r="15" />
+            <path className="flight__line" d="M72 -18 Q86 -10 88 2" />
+          </g>
         </g>
       </svg>
     </div>

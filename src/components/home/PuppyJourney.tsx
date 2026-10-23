@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { journeySteps } from "../../data/howItWorks";
 import { breedChips } from "../../data/navigation";
 import { showroomPhotos, showroomVideo } from "../../data/media";
-import { LOGO_URL, mediaFileUrl, mediaUrl } from "../../utils/images";
+import { focusOf, LOGO_URL, mediaFileUrl, mediaUrl } from "../../utils/images";
 import { DEFAULT_MESSAGE, defaultWhatsappUrl } from "../../utils/whatsapp";
 import Button from "../common/Button";
 import PupStop from "../mascot/PupStop";
@@ -43,13 +43,21 @@ export default function PuppyJourney() {
     if (!list) return;
     const mq = window.matchMedia(STEP_QUERY);
     let frame = 0;
+    let shown = 0;
+    let typingTimer = 0;
     const update = () => {
       frame = 0;
       const items = [...list.querySelectorAll<HTMLElement>(".chat-step")];
       const line = window.innerHeight * 0.55;
       let current = 0;
       items.forEach((el, i) => { if (el.getBoundingClientRect().top < line) current = i; });
+      if (current === shown) return;
+      shown = current;
       setActive(current);
+      // A short "typing…" bubble whenever a new step's messages arrive.
+      setTyping(true);
+      window.clearTimeout(typingTimer);
+      typingTimer = window.setTimeout(() => setTyping(false), 650);
     };
     const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
     const sync = () => { setStepping(mq.matches); schedule(); };
@@ -59,17 +67,10 @@ export default function PuppyJourney() {
     return () => {
       window.removeEventListener("scroll", schedule);
       mq.removeEventListener("change", sync);
+      window.clearTimeout(typingTimer);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
-
-  // A short "typing…" bubble whenever a new step's messages arrive.
-  useEffect(() => {
-    if (!stepping) return;
-    setTyping(true);
-    const t = window.setTimeout(() => setTyping(false), 650);
-    return () => window.clearTimeout(t);
-  }, [active, stepping]);
 
   const shown = (group: number) => !stepping || (group <= active && !(typing && group === active && group > 0));
 
@@ -114,7 +115,7 @@ export default function PuppyJourney() {
                   <div className="msg msg--them msg--media">
                     <div className="snaps">
                       {showroomPhotos.map((ph) => (
-                        <span key={ph.path} className="snaps__one"><img src={mediaUrl(ph.path, 256)} alt={ph.alt} loading="lazy" width="90" height="90" /></span>
+                        <span key={ph.path} className="snaps__one"><img src={mediaUrl(ph.path, 256)} alt={ph.alt} loading="lazy" width="90" height="90" style={{ objectPosition: focusOf(ph.path) }} /></span>
                       ))}
                     </div>
                   </div>

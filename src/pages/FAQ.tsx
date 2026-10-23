@@ -5,6 +5,7 @@ import PupStop from "../components/mascot/PupStop";
 import { faqs } from "../data/faqs";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useReveal } from "../hooks/useReveal";
+import PageContainer from "../components/layout/PageContainer";
 import { questionWhatsappUrl } from "../utils/whatsapp";
 
 /** Pin colour and tilt for each note on the board. */
@@ -37,7 +38,7 @@ export default function FAQ() {
 
   return (
     <section className="scene faqroom" data-tone="dark" aria-labelledby="faq-title" style={{ "--sky-top": "#a95e32", "--sky-bottom": "#331c11" } as CSSProperties}>
-      <div className="page-wrap">
+      <PageContainer>
         <header className="faqroom__head">
           <h1 id="faq-title" className="text-giant">Questions &amp; answers</h1>
           <p className="text-lede ink-soft faqroom__lede">Can't find what you're looking for? Message us on WhatsApp — our team is available 24/7.</p>
@@ -88,7 +89,7 @@ export default function FAQ() {
             )}
           </div>
         </div>
-      </div>
+      </PageContainer>
     </section>
   );
 }

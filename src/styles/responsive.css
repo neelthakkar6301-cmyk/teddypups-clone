@@ -9,12 +9,10 @@
   .nav__menu { display: inline-flex; }
   .nav__name { font-size: clamp(1.15rem, 4.6vw, 1.4rem); }
 }
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .nav__name { display: none; }
-}
 
 /* ---------- Phones ---------- */
 @media (max-width: 767px) {
+  .footer__basket { order: 1; }
   .nav__logo { width: 2.6rem; height: 2.6rem; }
   .nav__wa { display: none; }
   .action-bar { position: fixed; inset: auto 0 0; z-index: 40; display: flex; gap: 0.5rem; padding: 0.6rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom)); border-top: 2px solid var(--color-cocoa); background: var(--color-milk); }
@@ -29,6 +27,7 @@
 }
 
 @media (max-width: 639px) {
+  .form .btn { justify-self: stretch; }
   .hero__stage { --tw: clamp(8rem, 34vw, 10rem); min-height: clamp(14rem, 36vh, 19rem); }
   .lineup__seat { --w: 17vw !important; }
   .lineup__seat:nth-child(1) { --x: 8% !important; --peek: 1.18 !important; z-index: 1; }
@@ -48,6 +47,7 @@
 
 /* ---------- Small tablets up ---------- */
 @media (min-width: 640px) {
+  .gone-strip__row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .meet__track { gap: 3.5rem 2rem; }
   .photowall__prints { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.4rem 1.6rem; }
   .form__row { grid-template-columns: 1fr 1fr; }
@@ -58,6 +58,11 @@
 
 /* ---------- Tablets up ---------- */
 @media (min-width: 768px) {
+  .gone-strip__inner { flex-direction: row; align-items: center; }
+  .gone-strip__words { flex: none; width: calc(100% / 3); }
+  /* Room for Teddy, who appears in these scenes from tablet width */
+  .chat__side { padding-bottom: 7rem; }
+  .book__page--left { padding-bottom: 11rem; }
   .footer { padding-bottom: 2.5rem; }
   .footer__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1.5rem 3rem; padding-top: 7rem; }
   .footer__about { grid-column: 1 / span 5; }
@@ -77,6 +82,7 @@
 
 /* ---------- Laptops up ---------- */
 @media (min-width: 1024px) {
+  .gone-strip__row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .fork { grid-template-columns: 1fr 1fr; column-gap: clamp(9rem, 16vw, 15rem); padding-bottom: 8.5rem; }
   .way--left { align-items: flex-end; text-align: right; }
   .way--left, .way--right { order: 0; }

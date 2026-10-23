@@ -21,7 +21,7 @@ export default function TrustSection() {
           <div className="book__page book__page--left">
             <p className="book__kicker font-scrawl">puppy passport</p>
             <h2 id="trust-title" className="book__title">Why families trust TeddyPups</h2>
-            <PupStop className="book__teddy" facing="left" />
+            <PupStop className="book__teddy" />
           </div>
           <ul className="book__page book__page--right">
             {trustPoints.map((t, i) => {

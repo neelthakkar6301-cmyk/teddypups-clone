@@ -14,7 +14,7 @@ export function doorMeta(p: Puppy): string {
   if (p.name !== p.breed) parts.push(p.breed);
   parts.push(p.gender.toLowerCase());
   if (p.age) parts.push(p.age);
-  if (p.videoAvailable) parts.push("with video");
+  if (p.videos?.length) parts.push("with video");
   return parts.join(", ");
 }
 

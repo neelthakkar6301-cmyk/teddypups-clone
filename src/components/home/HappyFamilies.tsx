@@ -9,6 +9,8 @@ import PupStop from "../mascot/PupStop";
 /** Order the prints drop onto the wall (ms), so they don't fall in reading order. */
 const DROP_DELAYS = [330, 0, 550, 110, 660, 220, 770, 440];
 const [author, ...place] = featuredTestimonial.author.split(", ");
+/** The viewer opens on the captioned prints first, then the rest of the wall (as on the reference). */
+const viewerPhotos = [...homeFamilyPhotos, ...familyPhotos.filter((p) => !homeFamilyPhotos.includes(p))];
 
 /** "Happy families & puppies": dusk falls on a wooden facade hung with polaroids. */
 export default function HappyFamilies() {
@@ -32,26 +34,23 @@ export default function HappyFamilies() {
       <div className="photowall">
         <div className="photowall__wall">
           <ul ref={wallRef} className="photowall__prints" aria-label="Photos from TeddyPups families">
-            {homeFamilyPhotos.map((photo, i) => {
-              const at = familyPhotos.indexOf(photo);
-              return (
-                <li key={photo.path} style={{ "--d": `${DROP_DELAYS[i % DROP_DELAYS.length]}ms` } as CSSProperties}>
-                  <Polaroid photo={photo} look={i} onOpen={() => setViewing(at)}
-                    label={`Open photo ${at + 1} of ${familyPhotos.length}: ${photo.caption ?? "a TeddyPups family"}`} />
-                </li>
-              );
-            })}
+            {homeFamilyPhotos.map((photo, i) => (
+              <li key={photo.path} style={{ "--d": `${DROP_DELAYS[i % DROP_DELAYS.length]}ms` } as CSSProperties}>
+                <Polaroid photo={photo} look={i} onOpen={() => setViewing(i)}
+                  label={`Open photo ${i + 1} of ${viewerPhotos.length}: ${photo.caption ?? "a TeddyPups family"}`} />
+              </li>
+            ))}
           </ul>
           <div className="facade__ground">
             <span className="facade__door" aria-hidden="true" />
             <span className="lamp" aria-hidden="true"><span className="lamp__light" /></span>
             <Button to="/happy-families" className="facade__cta">See every happy family</Button>
-            <PupStop className="dusk__teddy" facing="left" />
+            <PupStop className="dusk__teddy" />
           </div>
         </div>
         <div className="pavement" aria-hidden="true" />
       </div>
-      <PhotoViewer photos={familyPhotos} index={viewing} onChange={setViewing} />
+      <PhotoViewer photos={viewerPhotos} index={viewing} onChange={setViewing} />
     </section>
   );
 }

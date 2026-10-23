@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 
-interface Props { children: ReactNode; className?: string; narrow?: boolean }
+interface Props { children: ReactNode; className?: string }
 
-export default function PageContainer({ children, className = "", narrow }: Props) {
-  return <div className={`container ${narrow ? "container--narrow" : ""} ${className}`.trim()}>{children}</div>;
+/** Centred, gutter-padded wrapper used by every inner page. */
+export default function PageContainer({ children, className = "" }: Props) {
+  return <div className={`page-wrap ${className}`.trim()}>{children}</div>;
 }
